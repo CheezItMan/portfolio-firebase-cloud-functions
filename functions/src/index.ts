@@ -6,7 +6,7 @@ import * as sgMail from '@sendgrid/mail';
 dotenv.config();
 admin.initializeApp();
 
-const {SENDER_EMAIL, SENDER_PASSWORD, BACKEND_API_KEY} = process.env;
+const {SENDER_EMAIL, BACKEND_API_KEY} = process.env;
 
 export const addMessage = functions.https.onRequest(async (req, res) => {
 // Grab the text parameter.
@@ -54,7 +54,7 @@ export const sendEmail = functions.https.onRequest( (req, res) => {
       console.log(`API Key ${BACKEND_API_KEY}`);
       sgMail.setApiKey(BACKEND_API_KEY);
       const msg = {
-        to: 'mcanallyc@gmail.com',
+        to: SENDER_EMAIL,
         from,
         subject,
         text: message,
