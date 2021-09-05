@@ -74,7 +74,7 @@ export const sendEmail = functions.https.onRequest( (req, res) => {
           });
 
       res.status(201).json({
-        message: `Email sent to ${from}`,
+        message: `Email sent from ${from}`,
       });
     } else {
       res.status(400).json({
