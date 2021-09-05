@@ -1,12 +1,12 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as dotenv from 'dotenv';
-import * as nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 
 dotenv.config();
 admin.initializeApp();
 
-const {SENDER_EMAIL, SENDER_PASSWORD} = process.env;
+const {SENDER_EMAIL, SENDER_PASSWORD, BACKEND_API_KEY} = process.env;
 
 export const addMessage = functions.https.onRequest(async (req, res) => {
 // Grab the text parameter.
@@ -52,25 +52,21 @@ export const sendEmail = functions.https.onRequest( (req, res) => {
         },
       });
 
-      const authData = nodemailer.createTransport({
-        host: 'stmp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-          user: SENDER_EMAIL,
-          pass: SENDER_PASSWORD,
-        },
-      });
-
-      authData.sendMail({
-        from,
+      sgMail.setApiKey(BACKEND_API_KEY);
+      const msg = {
         to: 'mcanallyc@gmail.com',
+        from,
         subject,
         text: message,
         html: message,
-      }).then(() => console.log('success sending email'))
+      };
+
+      sgMail.send(msg)
+          .then(() => {
+            console.log('Email Sent!');
+          })
           .catch((error: any) => {
-            console.log(`Error sending email ${error.message}`);
+            console.log(error);
           });
 
       res.status(201).json({
