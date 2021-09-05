@@ -51,7 +51,7 @@ export const sendEmail = functions.https.onRequest( (req, res) => {
           html: message,
         },
       });
-
+      console.log(`API Key ${BACKEND_API_KEY}`);
       sgMail.setApiKey(BACKEND_API_KEY);
       const msg = {
         to: 'mcanallyc@gmail.com',
