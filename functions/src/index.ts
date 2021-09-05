@@ -1,17 +1,12 @@
 import * as functions from 'firebase-functions';
-
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-//
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//   functions.logger.info('Hello logs!', {structuredData: true});
-//   response.send('Hello from Firebase!');
-// });
-
 import * as admin from 'firebase-admin';
+import * as dotenv from 'dotenv';
+import nodemailer from 'nodemailer';
 
+dotenv.config();
 admin.initializeApp();
 
+const { SENDER_EMAIL, SENDER_PASSWORD } = process.env;
 
 export const addMessage = functions.https.onRequest(async (req, res) => {
 // Grab the text parameter.
@@ -56,6 +51,28 @@ export const sendEmail = functions.https.onRequest( (req, res) => {
           html: message,
         },
       });
+
+      const authData = nodemailer.createTransport({
+        host: 'stmp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: SENDER_EMAIL,
+          pass: SENDER_PASSWORD,
+        },
+      });
+
+      authData.sendMail({
+        from,
+        to: 'mcanallyc@gmail.com',
+        subject,
+        text: message,
+        html: message,
+      }).then(() => console.log('success sending email'))
+          .catch((error: any) => {
+            console.log(`Error sending email ${error.message}`);
+          });
+
       res.status(201).json({
         message: `Email sent to ${from}`,
       });
