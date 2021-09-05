@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as dotenv from 'dotenv';
-import nodemailer from 'nodemailer';
+import * as nodemailer from 'nodemailer';
 
 dotenv.config();
 admin.initializeApp();
