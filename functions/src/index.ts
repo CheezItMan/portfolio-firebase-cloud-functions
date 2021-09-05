@@ -6,7 +6,15 @@ import * as sgMail from '@sendgrid/mail';
 dotenv.config();
 admin.initializeApp();
 
+export interface ProcessEnv {
+  [key: string]: string,
+}
+
 const {SENDER_EMAIL, BACKEND_API_KEY} = process.env;
+if (SENDER_EMAIL === undefined || BACKEND_API_KEY === undefined) {
+  console.log('missing env var');
+  process.exit(-1);
+}
 
 export const addMessage = functions.https.onRequest(async (req, res) => {
 // Grab the text parameter.
