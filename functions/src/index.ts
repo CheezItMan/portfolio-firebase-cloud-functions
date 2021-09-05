@@ -6,7 +6,7 @@ import * as nodemailer from 'nodemailer';
 dotenv.config();
 admin.initializeApp();
 
-const { SENDER_EMAIL, SENDER_PASSWORD } = process.env;
+const {SENDER_EMAIL, SENDER_PASSWORD} = process.env;
 
 export const addMessage = functions.https.onRequest(async (req, res) => {
 // Grab the text parameter.
