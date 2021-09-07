@@ -42,7 +42,7 @@ export const makeUppercase = functions.firestore
     });
 
 
-export const sendEmail = functions.https.onRequest( (req, res) => {
+export const sendEmail = functions.https.onRequest( async (req, res) => {
   if (req.method == 'POST') {
     console.log('Got a post request!');
     console.log(req.body);
@@ -59,35 +59,46 @@ export const sendEmail = functions.https.onRequest( (req, res) => {
           html: message,
         },
       });
-      console.log(`API Key ${BACKEND_API_KEY}`);
-      sgMail.setApiKey(BACKEND_API_KEY);
-      const msg = {
-        to: SENDER_EMAIL,
-        from,
-        subject,
-        text: message,
-        html: message,
-      };
-
-      sgMail.send(msg)
-          .then(() => {
-            console.log('Email Sent!');
-          })
-          .catch((error: any) => {
-            console.log(error);
-          });
-
-      res.status(201).json({
-        message: `Email sent from ${from}`,
-      });
-    } else {
-      res.status(400).json({
-        message: 'Request must include name, email, subject and message fields',
-      });
     }
-  } else {
-    res.status(404).json({
-      message: 'Request must be a POST request.',
-    });
+
+    const apiConfig = await admin.firestore().collection('config')
+        .get();
+
+    console.log('*****APICONFIG*****');
+    console.log(apiConfig);
+    console.log('*****APICONFIG*****');
   }
+
+  //     console.log(`API Key ${BACKEND_API_KEY}`);
+  //     sgMail.setApiKey(BACKEND_API_KEY);
+  //     const msg = {
+  //       to: SENDER_EMAIL,
+  //       from,
+  //       subject,
+  //       text: message,
+  //       html: message,
+  //     };
+
+  //     sgMail.send(msg)
+  //         .then(() => {
+  //           console.log('Email Sent!');
+  //         })
+  //         .catch((error: any) => {
+  //           console.log(error);
+  //         });
+
+  //     res.status(201).json({
+  //       message: `Email sent from ${from}`,
+  //     });
+  //   } else {
+  //     res.status(400).json({
+  //       message: 'Request must include name, email, subject \
+  //                  and message fields',
+  //     });
+  //   }
+  // } else {
+  //   res.status(404).json({
+  //     message: 'Request must be a POST request.',
+  //   });
+  // }
 });
