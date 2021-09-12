@@ -1,6 +1,8 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as sgMail from '@sendgrid/mail';
+import * as corsModule from 'cors';
+const cors = corsModule(({origin: true}));
 admin.initializeApp();
 
 type ConfigData = {
@@ -17,7 +19,6 @@ type EmailRequestBody = {
 
 export const addMessage = functions.https.onRequest(async (req, res) => {
   if (req.method == 'POST') {
-    res.set('Access-Control-Allow-Origin', '*');
     const {name, from, subject, message} = req.body as EmailRequestBody;
     const snapshot = await admin.firestore().collection('config')
         .doc('APIs').get();
@@ -61,21 +62,27 @@ export const addMessage = functions.https.onRequest(async (req, res) => {
           sgMail.setApiKey(configData.SENDGRID_API_KEY);
           await sgMail.send(msg);
         } catch (error) {
-          res.statusCode = 500;
-          res.send({
-            ok: false,
-            message: 'Error Sending Email',
+          cors(req, res, () => {
+            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.statusCode = 500;
+            res.send({
+              ok: false,
+              message: 'Error Sending Email',
+            });
+            console.log('Error sending email');
+            console.log(error);
           });
-          console.log('Error sending email');
-          console.log(error);
           return;
         }
-        res.statusCode = 201;
-        res.send({
-          'ok': true,
-          'message': 'Email Sent!',
+        cors(req, res, () => {
+          res.set('Access-Control-Allow-Headers', 'Content-Type');
+          res.statusCode = 201;
+          res.send({
+            'ok': true,
+            'message': 'Email Sent!',
+          });
+          console.log('Email Sent Successfully');
         });
-        console.log('Email Sent Successfully');
       } else {
         res.statusCode = 500;
         res.send({
