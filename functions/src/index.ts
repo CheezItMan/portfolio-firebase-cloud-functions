@@ -9,29 +9,30 @@ type ConfigData = {
 };
 
 type EmailRequestBody = {
-  name: string, 
-  from: string, 
+  name: string,
+  from: string,
   subject: string,
   message: string,
 }
 
 export const addMessage = functions.https.onRequest(async (req, res) => {
   if (req.method == 'POST') {
+    res.set('Access-Control-Allow-Origin', '*');
     const {name, from, subject, message} = req.body as EmailRequestBody;
-    console.log(req.body);    
-      const snapshot = await admin.firestore().collection('config')
-          .doc('APIs').get();
-      if (snapshot.exists) {
-        const configData = snapshot.data() as ConfigData;
-        if ( name && from && subject && message) {
-          admin.firestore().collection('mail').add({
-            to: configData.destination,
-            from: from,
-            message: {
-              subject: subject,
-              html: message,
-            },
-          });
+    const snapshot = await admin.firestore().collection('config')
+        .doc('APIs').get();
+
+    if (snapshot.exists) {
+      const configData = snapshot.data() as ConfigData;
+      if ( name && from && subject && message) {
+        admin.firestore().collection('mail').add({
+          to: configData.destination,
+          from: from,
+          message: {
+            subject: subject,
+            html: message,
+          },
+        });
 
         const fullTextHTMLMessage = `<section>
           <h2>Portfolio Email from: ${from},</h2>
@@ -47,7 +48,7 @@ export const addMessage = functions.https.onRequest(async (req, res) => {
         From: ${from},
         Subject: ${subject}
         Message: ${message}
-        `
+        `;
 
         const msg = {
           to: configData.destination,
